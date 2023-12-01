@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/ApiGateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ApiGateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Authentication-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Authentication-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Billing-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Billing-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/JwtAuthLibrary/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/JwtAuthLibrary/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Music-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Music-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Query-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Query-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Social-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Social-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SpotifyDiscoveryService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SpotifyDiscoveryService/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/User-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/User-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-events/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-events/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

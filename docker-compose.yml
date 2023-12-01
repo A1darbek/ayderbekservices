@@ -1,0 +1,149 @@
+version: '3.9'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    container_name: prometheus-container
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    ports:
+      - "9090:9090"
+    restart: always
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    user: root
+    container_name: grafana-container
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    restart: always
+
+  cache:
+    image: redis:6.2-alpine
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper_service
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: always
+
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker_service
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    restart: always
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_service
+    environment:
+      POSTGRES_DB:   # Specify your desired database name
+      POSTGRES_USER: "ayderbek"  # Specify your desired username
+      POSTGRES_PASSWORD: "password"  # Specify your desired password
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0
+    container_name: keycloak
+    command: start-dev
+    environment:
+       KEYCLOAK_ADMIN: "user"
+       KEYCLOAK_ADMIN_PASSWORD: password
+       KC_DB: postgres
+       KC_DB_URL: jdbc:postgresql://postgres:5432/userservice
+       KC_DB_PASSWORD: password
+       KC_DB_USERNAME: ayderbek
+       KC_DB_SCHEMA: public
+    volumes:
+      - ./keycloak-config/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: always
+
+# ATTENTION image is 8.9.1 don't confuse it AIDAR!!!!!!!!!
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.1
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticvolume:/usr/share/elasticsearch/data
+    restart: always
+
+  logstash:
+    container_name: logstash
+    build:
+      context: ./logstash/
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - CONFIG_SUPPORT_ESCAPE=true
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+      - postgres
+    volumes:
+      - logstashvolume:/usr/share/logstash/data
+    restart: always
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.1
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    restart: always
+
+volumes:
+  elasticvolume:
+  logstashvolume:
+  cache:
+    driver: local
+

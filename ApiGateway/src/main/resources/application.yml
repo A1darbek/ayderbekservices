@@ -1,0 +1,124 @@
+server:
+  port: 8083
+spring:
+  cache:
+    cache-names: signedUrlsCache
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=10m
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              replenishRate: 100
+              burstCapacity: 200
+              requestedTokens: 1
+              key-resolver: "#{@ipAddressKeyResolver}"
+            rate-limiter.filter-refill-headers: true
+      routes:
+        - id: music-route
+          uri: lb://music-service
+          predicates:
+            - Path=/songs/**
+        - id: user-route
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+        - id: music-websocket-route
+          uri: lb://music-service
+          predicates:
+            - Path=/ws/**
+#          filters:
+#            - StripPrefix=2
+        - id: playlist-route
+          uri: lb://social-service
+          predicates:
+            - Path=/playlists/**
+        - id: query-service-route
+          uri: lb://query-service
+          predicates:
+            - Path=/cqrs-test/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET
+                backoff:
+                  firstBackoff: 50ms
+                  maxBackoff: 500ms
+#            - name: CircuitBreaker
+#              args:
+#                name: music-service
+#                fallbackUri: forward:/fallback/song/stream
+
+  application:
+    name: api-gateway
+  data:
+    redis:
+      port: 6379
+      host: localhost
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+#  instance:
+#    hostname: localhost
+
+logging:
+  level:
+    org.springframework.cloud.gateway.filter.ratelimit: DEBUG
+    org.springframework.web.socket: DEBUG
+
+#    org.springframework.cloud.gateway: DEBUG
+#    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: DEBUG
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      spotify-circuit-breaker:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        registerHealthIndicator: true
+  timelimiter:
+    instances:
+      spotify-time-limiter:
+        timeoutDuration: 3s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "health","prometheus", "metrics" ]
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        all: true
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+  prometheus:
+    metrics:
+      export:
+        step: 10s
+        enabled: true

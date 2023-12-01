@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="Music-Service" />
+        <module name="Billing-Service" />
+        <module name="common" />
+        <module name="Social-Service" />
+        <module name="SpotifyDiscoveryService" />
+        <module name="ApiGateway" />
+        <module name="Query-Service" />
+        <module name="User-Service" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Authentication-Service" target="17" />
+      <module name="JwtAuthLibrary" target="17" />
+      <module name="shared-events" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="User-Service" options="-parameters" />
+    </option>
+  </component>
+</project>

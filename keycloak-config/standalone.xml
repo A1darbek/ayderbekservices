@@ -1,0 +1,9 @@
+<datasource jndi-name="java:jboss/datasources/KeycloakDS" pool-name="KeycloakDS" enabled="true" use-java-context="true">
+    <connection-url>jdbc:postgresql://postgres:5432/userservice</connection-url>
+    <driver>postgresql</driver>
+    <security>
+        <user-name>ayderbek</user-name>
+        <password>password</password>
+    </security>
+    <!-- Other datasource configurations -->
+</datasource>
